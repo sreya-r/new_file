@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports Inventory Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0F172A;
+            --card-bg: #1E293B;
+            --accent-blue: #3B82F6;
+            --accent-teal: #14B8A6;
+            --accent-pink: #EC4899;
+            --accent-purple: #8B5CF6;
+            --text-light: #F8FAFC;
+            --text-gray: #94A3B8;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            margin: 0;
+            padding: 20px;
+            background-image: radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+        }
+
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header styles remain the same */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-teal));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Stats cards and other elements remain the same */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* ... (keep all your existing styles until the modal section) ... */
+
+        /* Updated Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 25px;
+            width: 90%;
+            max-width: 500px; /* Increased from 400px */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        .modal-title {
+            font-size: 1.4rem; /* Slightly larger */
+            margin-bottom: 20px;
+            color: var(--accent-teal);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 18px; /* Increased spacing */
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-light);
+            font-weight: 500;
+            font-size: 0.95rem; /* Slightly larger */
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px; /* More padding */
+            border-radius: 8px;
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            background-color: rgba(148, 163, 184, 0.1);
+            color: var(--text-light);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem; /* Slightly larger */
+            transition: border 0.3s;
+        }
+
+        .form-group textarea {
+            min-height: 80px; /* Taller textarea */
+        }
+
+        .submit-btn {
+            padding: 12px 24px; /* Larger button */
+            font-size: 1rem;
+        }
+
+        /* Two-column layout for wider screens */
+        @media (min-width: 600px) {
+            .form-columns {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+        }
+
+        /* Single column for mobile */
+        @media (max-width: 600px) {
+            .form-columns {
+                display: block;
+            }
+            
+            .modal-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Your existing dashboard HTML remains the same until the modals -->
+
+    <!-- Add Item Modal -->
+    <div class="modal" id="addItemModal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 class="modal-title">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Equipment</span>
+            </h2>
+            <form id="addItemForm">
+                <div class="form-group">
+                    <label for="itemName">Equipment Name</label>
+                    <input type="text" id="itemName" name="itemName" required>
+                </div>
+                
+                <div class="form-columns">
+                    <div class="form-group">
+                        <label for="itemCategory">Category</label>
+                        <select id="itemCategory" name="itemCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="Ball">Ball</option>
+                            <option value="Rackets">Rackets</option>
+                            <option value="Gym Equipment">Gym Equipment</option>
+                            <option value="Bat/Stick">Bat/Stick</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="itemQuantity">Quantity</label>
+                        <input type="number" id="itemQuantity" name="itemQuantity" min="1" required>
+                    </div>
+                </div>
+                
+                <div class="form-columns">
+                    <div class="form-group">
+                        <label for="itemCondition">Condition</label>
+                        <select id="itemCondition" name="itemCondition" required>
+                            <option value="">Select Condition</option>
+                            <option value="New">New</option>
+                            <option value="Good">Good</option>
+                            <option value="Fair">Fair</option>
+                            <option value="Poor">Poor</option>
+                            <option value="Needs Repair">Needs Repair</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="minStockLevel">Min Stock Level</label>
+                        <input type="number" id="minStockLevel" name="minStockLevel" min="0" value="5">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="itemLocation">Storage Location</label>
+                    <input type="text" id="itemLocation" name="itemLocation" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="itemDescription">Description</label>
+                    <textarea id="itemDescription" name="itemDescription"></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn">Add Equipment</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Check Out Modal (updated with borrower fields) -->
+    <div class="modal" id="checkoutModal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 class="modal-title">
+                <i class="fas fa-running"></i>
+                <span>Check Out Item</span>
+            </h2>
+            <form id="checkoutForm">
+                <div class="form-group">
+                    <label for="checkoutItem">Select Item</label>
+                    <select id="checkoutItem" name="checkoutItem" required>
+                        <option value="">Select Item</option>
+                        <!-- Options will be loaded dynamically -->
+                    </select>
+                </div>
+                
+                <div class="form-columns">
+                    <div class="form-group">
+                        <label for="checkoutQuantity">Quantity</label>
+                        <input type="number" id="checkoutQuantity" name="checkoutQuantity" min="1" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dueDate">Due Date</label>
+                        <input type="date" id="dueDate" name="dueDate" required>
+                    </div>
+                </div>
+                
+                <div class="form-columns">
+                    <div class="form-group">
+                        <label for="borrowerName">Borrower Name</label>
+                        <input type="text" id="borrowerName" name="borrowerName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="borrowerEmail">Borrower Email</label>
+                        <input type="email" id="borrowerEmail" name="borrowerEmail" required>
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-btn">Check Out</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Your existing JavaScript remains the same
+        // Database configuration
+        const API_BASE_URL = 'api/';
+
+        // DOM Elements
+        const addItemModal = document.getElementById('addItemModal');
+        const checkoutModal = document.getElementById('checkoutModal');
+        const addItemBtn = document.getElementById('addItemBtn');
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        const closeBtns = document.querySelectorAll('.close-btn');
+
+        // Modal Control Functions
+        function openModal(modal) {
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modal) {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Event Listeners
+        addItemBtn.addEventListener('click', () => {
+            openModal(addItemModal);
+        });
+
+        checkoutBtn.addEventListener('click', () => {
+            fetchAvailableItems();
+            openModal(checkoutModal);
+        });
+
+        closeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const modal = btn.closest('.modal');
+                closeModal(modal);
+            });
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target.classList.contains('modal')) {
+                closeModal(event.target);
+            }
+        });
+
+        // Fetch Available Items for Checkout
+        async function fetchAvailableItems() {
+            const itemSelect = document.getElementById('checkoutItem');
+            itemSelect.innerHTML = '<option value="">Loading items...</option>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}get_available_items.php`);
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const items = await response.json();
+                
+                itemSelect.innerHTML = '<option value="">Select Item</option>';
+                items.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.equipment_id;
+                    option.textContent = `${item.name} (${item.quantity} available)`;
+                    option.dataset.maxQuantity = item.quantity;
+                    itemSelect.appendChild(option);
+                });
+                
+                // Update max quantity when item selection changes
+                itemSelect.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    document.getElementById('checkoutQuantity').max = selectedOption.dataset.maxQuantity || 1;
+                });
+            } catch (error) {
+                console.error('Error fetching available items:', error);
+                itemSelect.innerHTML = '<option value="">Error loading items</option>';
+            }
+        }
+
+        // Form Submissions
+        document.getElementById('addItemForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('itemName').value,
+                category_id: document.getElementById('itemCategory').value,
+                quantity: document.getElementById('itemQuantity').value,
+                condition: document.getElementById('itemCondition').value,
+                min_stock_level: document.getElementById('minStockLevel').value,
+                location: document.getElementById('itemLocation').value,
+                description: document.getElementById('itemDescription').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}add_equipment.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Equipment added successfully!');
+                    closeModal(addItemModal);
+                    this.reset();
+                } else {
+                    alert('Error: ' + (result.message || 'Failed to add equipment'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to add equipment. Please try again.');
+            }
+        });
+
+        document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                equipment_id: document.getElementById('checkoutItem').value,
+                quantity: document.getElementById('checkoutQuantity').value,
+                borrower_name: document.getElementById('borrowerName').value,
+                borrower_email: document.getElementById('borrowerEmail').value,
+                due_date: document.getElementById('dueDate').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE_URL}checkout_item.php`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('Item checked out successfully!');
+                    closeModal(checkoutModal);
+                    this.reset();
+                } else {
+                    alert('Error: ' + (result.message || 'Failed to checkout item'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to checkout item. Please try again.');
+            }
+        });
+    </script>
+</body>
+</html>
